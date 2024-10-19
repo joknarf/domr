@@ -1,1 +1,1 @@
-alias domr="${0%.plugin.zsh}/domr.py"
+alias domr="${0%.plugin.zsh}.py"

@@ -1,1 +1,1 @@
-alias domr="${BASH_SOURCE%.plugin.bash}/domr.py"
+alias domr="${BASH_SOURCE%.plugin.bash}.py"

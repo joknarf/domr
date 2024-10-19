@@ -23,10 +23,12 @@ def parse_args() -> Namespace:
     )
     parser.add_argument("-f", "--hostsfile", help="hosts list file")
     parser.add_argument("-H", "--hosts", help="hosts list", nargs="+")
+    parser.add_argument("-i", "--getips", action="store_true", help="display resolved ip")
+    parser.add_argument("-I", "--getip", action="store_true", help="display first resolved ip")
     return parser.parse_args()
 
 
-def resolve_hostname(host: str) -> Optional[str]:
+def resolve_hostname(host: str) -> Optional[tuple]:
     """try get fqdn from DNS"""
     try:
         res = gethostbyname_ex(host)
@@ -35,10 +37,10 @@ def resolve_hostname(host: str) -> Optional[str]:
     except UnicodeError:
         print(f"Warning: domr: invalid hostname/domain: {host}")
         return None
-    return res[0]
+    return res
 
 
-def resolve_in_domains(host: str, domains: list) -> str:
+def resolve_in_domains(host: str, domains: list) -> tuple:
     """try get fqdn from short hostname in domains"""
     fqdn = resolve_hostname(host)
     if fqdn:
@@ -48,17 +50,17 @@ def resolve_in_domains(host: str, domains: list) -> str:
         if fqdn:
             return fqdn
     print(f"Warning: domr: cannot resolve {host}", file=sys.stderr)
-    return host
+    return (host,[],[host])
 
 
-def resolve_ip(ip: str) -> str:
+def resolve_ip(ip: str) -> tuple:
     """try resolve hostname by reverse dns query on ip addr"""
     try:
         host = gethostbyaddr(ip)
     except OSError:
         print(f"Warning: domr: cannot resolve {ip}", file=sys.stderr)
-        return ip
-    return host[0]
+        return (ip, [], [ip])
+    return host
 
 
 def is_ip(host: str) -> bool:
@@ -70,7 +72,7 @@ def is_ip(host: str) -> bool:
         return False
 
 
-def resolve(host: str, domains: list) -> str:
+def resolve(host: str, domains: list) -> tuple:
     """resolve hostname from ip / hostname"""
     if is_ip(host):
         return resolve_ip(host)
@@ -118,7 +120,12 @@ def main() -> None:
     else:
         hostsfile = "parameter"
     hosts = get_hosts(args.hostsfile, args.hosts)
-    print("\n".join(resolve_hosts(hosts, DNS_DOMAINS.split())))
+    if args.getips:
+        print("\n".join(["\n".join(host[2]) for host in resolve_hosts(hosts, DNS_DOMAINS.split())]))
+    elif args.getip:
+        print("\n".join([host[2][0] for host in resolve_hosts(hosts, DNS_DOMAINS.split())]))
+    else:
+        print("\n".join([host[0] for host in resolve_hosts(hosts, DNS_DOMAINS.split())]))
 
 if __name__ == "__main__":
     main()

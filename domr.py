@@ -7,19 +7,17 @@
 """
 import os
 import sys
-from typing import Optional
-from socket import gethostbyname_ex, gethostbyaddr, inet_aton
-from argparse import ArgumentParser, Namespace, RawTextHelpFormatter
+from socket import gethostbyname_ex, gethostbyaddr, inet_aton, error
+from argparse import ArgumentParser, RawTextHelpFormatter
 
 DNS_DOMAINS = os.environ.get("DOMR_DOMAINS") or ""
 
-def parse_args() -> Namespace:
+def parse_args():
     """argument parse"""
     if len(sys.argv) == 1:
         sys.argv.append("-h")
-    __version__="0.1"
     parser = ArgumentParser(
-        description=f"domr v{__version__}", formatter_class=RawTextHelpFormatter
+        description="domr v1.0", formatter_class=RawTextHelpFormatter
     )
     parser.add_argument("-f", "--hostsfile", help="hosts list file")
     parser.add_argument("-H", "--hosts", help="hosts list", nargs="+")
@@ -28,63 +26,63 @@ def parse_args() -> Namespace:
     return parser.parse_args()
 
 
-def resolve_hostname(host: str) -> Optional[tuple]:
+def resolve_hostname(host):
     """try get fqdn from DNS"""
     try:
         res = gethostbyname_ex(host)
     except OSError:
         return None
     except UnicodeError:
-        print(f"Warning: domr: invalid hostname/domain: {host}")
+        print("Warning: domr: invalid hostname/domain: " + host)
         return None
     return res
 
 
-def resolve_in_domains(host: str, domains: list) -> tuple:
+def resolve_in_domains(host, domains):
     """try get fqdn from short hostname in domains"""
     resolved = resolve_hostname(host)
     if resolved:
         return resolved
     for domain in domains:
-        resolved = resolve_hostname(f"{host}.{domain}")
+        resolved = resolve_hostname(host + "." + domain)
         if resolved:
             return resolved
-    print(f"Warning: domr: cannot resolve {host}", file=sys.stderr)
+    sys.stderr.write("Warning: domr: cannot resolve " + host)
     return ()
 
 
-def resolve_ip(ip: str) -> tuple:
+def resolve_ip(ip):
     """try resolve hostname by reverse dns query on ip addr"""
     try:
         resolved = gethostbyaddr(ip)
     except OSError:
-        print(f"Warning: domr: cannot resolve {ip}", file=sys.stderr)
+        sys.stderr.write("Warning: domr: cannot resolve " + ip)
         return ()
     return resolved
 
 
-def is_ip(host: str) -> bool:
+def is_ip(host):
     """determine if host is valid ip"""
     try:
         inet_aton(host)
         return True
-    except OSError:
+    except (OSError, error):
         return False
 
 
-def resolve(host: str, domains: list) -> tuple:
+def resolve(host, domains):
     """resolve hostname from ip / hostname"""
     if is_ip(host):
         return resolve_ip(host)
     return resolve_in_domains(host, domains)
 
 
-def resolve_hosts(hosts: list, domains: list) -> list:
+def resolve_hosts(hosts, domains):
     """try resolve hosts to get fqdn"""
     return [resolve(host, domains) for host in hosts if host]
 
 
-def resolve_hosts_disp(hosts: list, domains: list, args: Namespace ) -> None:
+def resolve_hosts_disp(hosts, domains, args):
     for host in hosts:
         resolved = resolve(host, domains)
         if not resolved:
@@ -97,33 +95,23 @@ def resolve_hosts_disp(hosts: list, domains: list, args: Namespace ) -> None:
             print(resolved[0])
 
 
-def get_hosts(hostsfile: str, hosts: list) -> list:
+def get_hosts(hostsfile, hosts):
     """returns hosts list from args host or reading hostsfile"""
     if hosts:
         return hosts
     if not hostsfile:
-        print("ERROR: domr: No hosts definition", file=sys.stderr)
+        sys.stderr.write("ERROR: domr: No hosts definition")
         sys.exit(1)
     try:
         with open(hostsfile, "r", encoding="UTF-8") as fhosts:
             hosts = list(filter(len, fhosts.read().splitlines()))
     except OSError:
-        print(f"ERROR: domr: Cannot open {hostsfile}", file=sys.stderr)
+        sys.stderr.write("ERROR: domr: Cannot open " + hostsfile)
         sys.exit(1)
     return hosts
 
 
-def readfile(file: str) -> Optional[str]:
-    """try read from file"""
-    try:
-        with open(file, "r", encoding="UTF-8") as fd:
-            text = fd.read()
-    except OSError:
-        return None
-    return text.strip()
-
-
-def main() -> None:
+def main():
     """argument read / read hosts file / prepare commands / launch jobs"""
     global MAX_DOTS
     args = parse_args()

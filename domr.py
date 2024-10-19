@@ -7,7 +7,7 @@
 """
 import os
 import sys
-from socket import gethostbyname_ex, gethostbyaddr, inet_aton, error
+from socket import gethostbyname_ex, gethostbyaddr, inet_aton, inet_ntoa, error
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 DNS_DOMAINS = os.environ.get("DOMR_DOMAINS") or ""
@@ -41,8 +41,10 @@ def resolve_hostname(host):
 
 def resolve_in_domains(host, domains):
     """try get fqdn from short hostname in domains"""
+    resolved = ()
     if "." in host:
         resolved = resolve_hostname(host)
+    if resolved:
         return resolved
     for domain in domains:
         resolved = resolve_hostname(host + "." + domain)
@@ -54,6 +56,7 @@ def resolve_in_domains(host, domains):
 
 def resolve_ip(ip):
     """try resolve hostname by reverse dns query on ip addr"""
+    ip = inet_ntoa(inet_aton(ip))
     try:
         resolved = gethostbyaddr(ip)
     except OSError:
@@ -105,6 +108,8 @@ def get_hosts(hostsfile, hosts):
     if not hostsfile:
         sys.stderr.write("ERROR: domr: No hosts definition\n")
         sys.exit(1)
+    if hostsfile == "-":
+        return list(filter(len, sys.stdin.read().splitlines()))
     try:
         with open(hostsfile, "r", encoding="UTF-8") as fhosts:
             hosts = list(filter(len, fhosts.read().splitlines()))

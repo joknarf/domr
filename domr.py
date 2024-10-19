@@ -47,7 +47,7 @@ def resolve_in_domains(host, domains):
         resolved = resolve_hostname(host + "." + domain)
         if resolved:
             return resolved
-    sys.stderr.write("Warning: domr: cannot resolve " + host)
+    sys.stderr.write("Warning: domr: cannot resolve " + host + "\n")
     return ()
 
 
@@ -56,7 +56,7 @@ def resolve_ip(ip):
     try:
         resolved = gethostbyaddr(ip)
     except OSError:
-        sys.stderr.write("Warning: domr: cannot resolve " + ip)
+        sys.stderr.write("Warning: domr: cannot resolve " + ip + "\n")
         return ()
     return resolved
 
@@ -100,13 +100,13 @@ def get_hosts(hostsfile, hosts):
     if hosts:
         return hosts
     if not hostsfile:
-        sys.stderr.write("ERROR: domr: No hosts definition")
+        sys.stderr.write("ERROR: domr: No hosts definition\n")
         sys.exit(1)
     try:
         with open(hostsfile, "r", encoding="UTF-8") as fhosts:
             hosts = list(filter(len, fhosts.read().splitlines()))
     except OSError:
-        sys.stderr.write("ERROR: domr: Cannot open " + hostsfile)
+        sys.stderr.write("ERROR: domr: Cannot open " + hostsfile + "\n")
         sys.exit(1)
     return hosts
 

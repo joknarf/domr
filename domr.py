@@ -134,7 +134,6 @@ def main() -> None:
         hostsfile = "parameter"
     hosts = get_hosts(args.hostsfile, args.hosts)
     resolve_hosts_disp(hosts, DNS_DOMAINS, args)
-    resolve_hosts(hosts, DNS_DOMAINS)
 
 if __name__ == "__main__":
     main()

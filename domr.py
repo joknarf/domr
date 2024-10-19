@@ -84,6 +84,17 @@ def resolve_hosts(hosts: list, domains: list) -> list:
     return [resolve(host, domains) for host in hosts]
 
 
+def resolve_hosts_disp(hosts: list, domains: list, args: Namespace ) -> None:
+    for host in hosts:
+        resolved = resolve(host, domains)
+        if args.getips:
+            print("\n".join(resolved[2]))
+        elif args.getip:
+            print(resolved[2][0])
+        else:
+            print(resolved[0])
+
+
 def get_hosts(hostsfile: str, hosts: list) -> list:
     """returns hosts list from args host or reading hostsfile"""
     if hosts:
@@ -120,12 +131,7 @@ def main() -> None:
     else:
         hostsfile = "parameter"
     hosts = get_hosts(args.hostsfile, args.hosts)
-    if args.getips:
-        print("\n".join(["\n".join(host[2]) for host in resolve_hosts(hosts, DNS_DOMAINS.split())]))
-    elif args.getip:
-        print("\n".join([host[2][0] for host in resolve_hosts(hosts, DNS_DOMAINS.split())]))
-    else:
-        print("\n".join([host[0] for host in resolve_hosts(hosts, DNS_DOMAINS.split())]))
-
+    resolve_hosts_disp(hosts, DNS_DOMAINS, args)
+    
 if __name__ == "__main__":
     main()

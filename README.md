@@ -10,8 +10,13 @@ Retrieve fqdn from ip (if reverse DNS avail for ip)
 myshorthost1.domain1.myorg
 myshorthost2.domain2.myorg
 
+# domr -H myshorthost1 myshorthost2 --getips
+192.168.1.10
+192.168.2.10
+
 # domr -H 192.168.1.10 192.168.2.10
 myshorthost1.domain1.myorg
 myshorthost2.domain2.myorg
+
 ```
 

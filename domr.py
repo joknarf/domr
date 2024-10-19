@@ -42,7 +42,7 @@ def resolve_hostname(host):
 def resolve_in_domains(host, domains):
     """try get fqdn from short hostname in domains"""
     resolved = ()
-    if "." in host:
+    if "." in host or not domains:
         resolved = resolve_hostname(host)
     if resolved:
         return resolved

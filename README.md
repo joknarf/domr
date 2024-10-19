@@ -1,7 +1,8 @@
 # domr
 DNS resolve from short hostname against multiple domains to get fqdn  
-returns first fqdn resolved among list of DNS domains
-Retrieve fqdn from ip (if reverse DNS avail for ip)
+returns first fqdn resolved among list of DNS domains  
+Retrieve fqdn from ip (if reverse DNS avail for ip)  
+*python2/3 compatible*
 
 ## usage
 

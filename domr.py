@@ -23,6 +23,7 @@ def parse_args():
     parser.add_argument("-H", "--hosts", help="hosts list", nargs="+")
     parser.add_argument("-i", "--getips", action="store_true", help="display resolved ip")
     parser.add_argument("-I", "--getip", action="store_true", help="display first resolved ip")
+    parser.add_argument("-a", "--all", action="store_true", help="display short + fqdn + ip")
     return parser.parse_args()
 
 
@@ -40,8 +41,8 @@ def resolve_hostname(host):
 
 def resolve_in_domains(host, domains):
     """try get fqdn from short hostname in domains"""
-    resolved = resolve_hostname(host)
-    if resolved:
+    if "." in host:
+        resolved = resolve_hostname(host)
         return resolved
     for domain in domains:
         resolved = resolve_hostname(host + "." + domain)
@@ -91,6 +92,8 @@ def resolve_hosts_disp(hosts, domains, args):
             print("\n".join(resolved[2]))
         elif args.getip:
             print(resolved[2][0])
+        elif args.all:
+            print(host, resolved[0], " ".join(resolved[2]), sep="\t")
         else:
             print(resolved[0])
 

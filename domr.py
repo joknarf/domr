@@ -21,12 +21,6 @@ def parse_args() -> Namespace:
     parser = ArgumentParser(
         description=f"domr v{__version__}", formatter_class=RawTextHelpFormatter
     )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="verbose display (fqdn + line for last output)",
-    )
     parser.add_argument("-f", "--hostsfile", help="hosts list file")
     parser.add_argument("-H", "--hosts", help="hosts list", nargs="+")
     return parser.parse_args()
@@ -37,6 +31,9 @@ def resolve_hostname(host: str) -> Optional[str]:
     try:
         res = gethostbyname_ex(host)
     except OSError:
+        return None
+    except UnicodeError:
+        print(f"Warning: domr: invalid hostname/domain: {host}")
         return None
     return res[0]
 

@@ -42,25 +42,25 @@ def resolve_hostname(host: str) -> Optional[tuple]:
 
 def resolve_in_domains(host: str, domains: list) -> tuple:
     """try get fqdn from short hostname in domains"""
-    fqdn = resolve_hostname(host)
-    if fqdn:
-        return fqdn
+    resolved = resolve_hostname(host)
+    if resolved:
+        return resolved
     for domain in domains:
-        fqdn = resolve_hostname(f"{host}.{domain}")
-        if fqdn:
-            return fqdn
+        resolved = resolve_hostname(f"{host}.{domain}")
+        if resolved:
+            return resolved
     print(f"Warning: domr: cannot resolve {host}", file=sys.stderr)
-    return (host,[],[host])
+    return ()
 
 
 def resolve_ip(ip: str) -> tuple:
     """try resolve hostname by reverse dns query on ip addr"""
     try:
-        host = gethostbyaddr(ip)
+        resolved = gethostbyaddr(ip)
     except OSError:
         print(f"Warning: domr: cannot resolve {ip}", file=sys.stderr)
-        return (ip, [], [ip])
-    return host
+        return ()
+    return resolved
 
 
 def is_ip(host: str) -> bool:
@@ -81,12 +81,14 @@ def resolve(host: str, domains: list) -> tuple:
 
 def resolve_hosts(hosts: list, domains: list) -> list:
     """try resolve hosts to get fqdn"""
-    return [resolve(host, domains) for host in hosts]
+    return [resolve(host, domains) for host in hosts if host]
 
 
 def resolve_hosts_disp(hosts: list, domains: list, args: Namespace ) -> None:
     for host in hosts:
         resolved = resolve(host, domains)
+        if not resolved:
+            continue
         if args.getips:
             print("\n".join(resolved[2]))
         elif args.getip:
@@ -132,6 +134,7 @@ def main() -> None:
         hostsfile = "parameter"
     hosts = get_hosts(args.hostsfile, args.hosts)
     resolve_hosts_disp(hosts, DNS_DOMAINS, args)
-    
+    resolve_hosts(hosts, DNS_DOMAINS)
+
 if __name__ == "__main__":
     main()

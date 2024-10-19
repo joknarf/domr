@@ -133,7 +133,7 @@ def main() -> None:
     else:
         hostsfile = "parameter"
     hosts = get_hosts(args.hostsfile, args.hosts)
-    resolve_hosts_disp(hosts, DNS_DOMAINS, args)
+    resolve_hosts_disp(hosts, DNS_DOMAINS.split(), args)
 
 if __name__ == "__main__":
     main()

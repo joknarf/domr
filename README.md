@@ -21,4 +21,5 @@ myshorthost1.domain1.myorg
 myshorthost2.domain2.myorg
 
 ```
+domr first try to resolve using local dns search domains, then using DOMR_DOMAINS.
 

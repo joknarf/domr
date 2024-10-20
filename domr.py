@@ -56,7 +56,7 @@ def resolve_ip(ip):
     """try resolve hostname by reverse dns query on ip addr"""
     ip = inet_ntoa(inet_aton(ip))
     try:
-        return list[gethostbyaddr(ip)]+ [ip]
+        return list(gethostbyaddr(ip))+ [ip]
     except (OSError, error):
         sys.stderr.write("Warning: domr: cannot resolve " + ip + "\n")
     return []
@@ -106,10 +106,10 @@ def get_hosts(hostsfile, hosts):
         sys.stderr.write("ERROR: domr: No hosts definition\n")
         sys.exit(1)
     if hostsfile == "-":
-        return list(filter(len, sys.stdin.read().splitlines()))
+        return list(filter(len, sys.stdin.read().split()))
     try:
         with open(hostsfile, "r", encoding="UTF-8") as fhosts:
-            hosts = list(filter(len, fhosts.read().splitlines()))
+            hosts = list(filter(len, fhosts.read().split()))
     except OSError:
         sys.stderr.write("ERROR: domr: Cannot open " + hostsfile + "\n")
         sys.exit(1)

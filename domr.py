@@ -21,9 +21,9 @@ def parse_args():
     )
     parser.add_argument("-f", "--hostsfile", help="hosts list file")
     parser.add_argument("-H", "--hosts", help="hosts list", nargs="+")
-    parser.add_argument("-i", "--getips", action="store_true", help="display resolved ip")
+    parser.add_argument("-i", "--getips", action="store_true", help="display resolved ips")
     parser.add_argument("-I", "--getip", action="store_true", help="display first resolved ip")
-    parser.add_argument("-a", "--all", action="store_true", help="display short + fqdn + ip")
+    parser.add_argument("-a", "--all", action="store_true", help="display short/name resolved/fqdn/aliases/ips")
     return parser.parse_args()
 
 
@@ -41,28 +41,25 @@ def resolve_hostname(host):
 
 def resolve_in_domains(host, domains):
     """try get fqdn from short hostname in domains"""
-    resolved = ()
-    if "." in host or not domains:
-        resolved = resolve_hostname(host)
+    resolved = resolve_hostname(host)
     if resolved:
-        return resolved
+        return list(resolved) + [host]
     for domain in domains:
         resolved = resolve_hostname(host + "." + domain)
         if resolved:
-            return resolved
+            return list(resolved) + [host + "." + domain]
     sys.stderr.write("Warning: domr: cannot resolve " + host + "\n")
-    return ()
+    return []
 
 
 def resolve_ip(ip):
     """try resolve hostname by reverse dns query on ip addr"""
     ip = inet_ntoa(inet_aton(ip))
     try:
-        resolved = gethostbyaddr(ip)
-    except OSError:
+        return list[gethostbyaddr(ip)]+ [ip]
+    except (OSError, error):
         sys.stderr.write("Warning: domr: cannot resolve " + ip + "\n")
-        return ()
-    return resolved
+    return []
 
 
 def is_ip(host):
@@ -96,7 +93,7 @@ def resolve_hosts_disp(hosts, domains, args):
         elif args.getip:
             print(resolved[2][0])
         elif args.all:
-            print(host, resolved[0], " ".join(resolved[2]), sep="\t")
+            print(host, resolved[3], resolved[0], " ".join(resolved[1]), " ".join(resolved[2]), sep="\t")
         else:
             print(resolved[0])
 

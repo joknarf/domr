@@ -1,3 +1,5 @@
+[![Python versions](https://img.shields.io/badge/python-2.7+%20|%203.x-blue.svg)](https://shields.io/)
+
 # domr
 DNS resolve from short hostname against multiple domains to get fqdn (extend limited search in resolv.conf)  
 returns first fqdn resolved among list of DNS domains  

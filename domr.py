@@ -93,7 +93,7 @@ def resolve_hosts_disp(hosts, domains, args):
         elif args.getip:
             print(resolved[2][0])
         elif args.all:
-            print(host, resolved[3], resolved[0], " ".join(resolved[1]), " ".join(resolved[2]), sep="\t")
+            print("\t".join([host, resolved[3], resolved[0], " ".join(resolved[1]), " ".join(resolved[2])]))
         else:
             print(resolved[0])
 
